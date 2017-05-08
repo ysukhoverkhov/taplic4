@@ -1,6 +1,14 @@
 module Main where
 
-import Lib
+
+data Term =
+  TmTrue |
+  TmFalse |
+  TmIf Term Term Term |
+  TmZero |
+  TmSucc Term |
+  TmPred Term |
+  TmIsZero Term
 
 main :: IO ()
 main = print "hello"
