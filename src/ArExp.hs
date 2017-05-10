@@ -17,21 +17,21 @@ evalAll t
 
 eval :: Term -> Either String Term
 eval t = case t of
-  (TmIf TmTrue t2 _) -> Right t2
-  (TmIf TmFalse _ t3) -> Right t3
-  (TmIf t1 t2 t3) | isNumericVal t1 -> Left "Condition in TmIf can't be numeric"
-                  | otherwise -> (\x -> TmIf x t2 t3) <$> eval t1
+  TmIf TmTrue t2 _ -> Right t2
+  TmIf TmFalse _ t3 -> Right t3
+  TmIf t1 t2 t3 | isNumericVal t1 -> Left "Condition in TmIf can't be numeric"
+                | otherwise -> (\x -> TmIf x t2 t3) <$> eval t1
 
-  (TmIsZero TmZero) -> Right TmTrue
-  (TmIsZero t1) | isNumericVal t1 -> Right TmFalse
-                | isVal t1 -> Left "Argument of TmIsZero should be numeric"
-                | otherwise -> TmIsZero <$> eval t1
+  TmIsZero TmZero -> Right TmTrue
+  TmIsZero t1 | isNumericVal t1 -> Right TmFalse
+              | isVal t1 -> Left "Argument of TmIsZero should be numeric"
+              | otherwise -> TmIsZero <$> eval t1
 
-  (TmSucc t) -> TmSucc <$> eval t
+  TmSucc t -> TmSucc <$> eval t
 
-  (TmPred TmZero) -> Right TmZero
-  (TmPred (TmSucc t1)) -> Right t1
-  (TmPred t1) -> TmPred <$> eval t1
+  TmPred TmZero -> Right TmZero
+  TmPred (TmSucc t1) -> Right t1
+  TmPred t1 -> TmPred <$> eval t1
 
   _ -> Left $ "Can't evaluate " ++ show t
 
