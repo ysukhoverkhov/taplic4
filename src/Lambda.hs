@@ -2,20 +2,39 @@ module Lambda where
 
 -- TODO: specify terms to export.
 
+import Data.List (find)
+import Data.Maybe (fromMaybe)
+
 data Term =
-  TmVar Integer Integer |
+  TmVar Int Int |
   TmAbs Term String |
   TmApp Term Term
   deriving (Show)
 
 newtype Context = Context [(String, Binding)]
 
-type Binding = String
+type Binding = Int
 
-printTm :: Context -> Term -> IO()
-printTm ctx t = print "I'll implement it a bit later. I Promise."
+printTm :: Context -> Term -> String
+printTm ctx t = case t of
+  TmVar x n | ctxLength ctx == n -> show (index2name ctx x)
+            | otherwise -> "[bad index]"
+  TmAbs t1 x ->
+    let (ctx', x') = pickFreshName ctx x in
+      "(lambda " ++ x' ++ ". " ++ printTm ctx' t1 ++ ")"
+  TmApp t1 t2 ->
+    "(" ++ printTm ctx t1 ++ " " ++ printTm ctx t2 ++ ")"
+  where
+    pickFreshName ctx x = (ctx, x) -- TODO: implement me.
+    ctxLength (Context ctx) = length ctx
+    index2name :: Context -> Int -> String
+    index2name (Context ctx) x =
+      fromMaybe "[index not in context]" (fst <$> maybeElement)
+      where
+        maybeElement = find (\contextElement -> snd contextElement == x) ctx
 
-termShift :: Integer -> Term -> Term
+
+termShift :: Int -> Term -> Term
 termShift d = walk 0
   where
     walk c t = case t of
@@ -25,7 +44,7 @@ termShift d = walk 0
       TmApp t1 t2 -> TmApp (walk c t1) (walk c t2)
 
 -- [j -> s]t
-termSubst :: Integer -> Term -> Term -> Term
+termSubst :: Int -> Term -> Term -> Term
 termSubst j s = walk 0
   where
     walk c t = case t of
