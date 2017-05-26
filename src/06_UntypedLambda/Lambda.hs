@@ -13,12 +13,13 @@ data Term =
   TmApp Term Term
   deriving (Show)
 
-data NameBind = NameBind
+data NameBind = NameBind deriving Show
 type Binding = NameBind
 
 type Name = String
 
-newtype Context = Context [(Name, Binding)]
+type ContextElement = (Name, Binding)
+newtype Context = Context [ContextElement] deriving Show
 
 -- Context management
 
@@ -38,8 +39,6 @@ isNameBound :: Context -> Name -> Bool
 isNameBound (Context ctx) name =
   any (\element -> fst element == name) ctx
 
--- TODO: replace string with Name
-
 pickFreshName :: Context -> Name -> (Context, Name)
 pickFreshName ctx name =
   if isNameBound ctx name then
@@ -47,36 +46,43 @@ pickFreshName ctx name =
   else
     (addName ctx name, name)
 
-index2name :: Context -> Int -> Maybe Name
-index2name (Context ctx) index =
-  fst <$> maybeElement
-  where
-    maybeElement :: Maybe (String, Binding)
-    maybeElement
-      | index >= length ctx = Nothing
-      | otherwise = Just $ ctx !! index
+indexToName :: Context -> Int -> Maybe Name
+indexToName ctx index =
+  fst <$> contextElementByIndex ctx index
 
-name2index :: Context -> Name -> Maybe Int
-name2index (Context ctx) name =
+indexToBinding :: Context -> Int -> Maybe NameBind
+indexToBinding ctx index =
+  snd <$> contextElementByIndex ctx index
+
+contextElementByIndex :: Context -> Int -> Maybe ContextElement
+contextElementByIndex (Context ctx) index
+  | index >= length ctx = Nothing
+  | otherwise = Just $ ctx !! index
+
+nameToIndex :: Context -> Name -> Maybe Int
+nameToIndex (Context ctx) name =
   testIndex ctx name 0
   where
-    testIndex :: [(Name, Binding)] -> Name -> Int -> Maybe Int
+    testIndex :: [ContextElement] -> Name -> Int -> Maybe Int
     testIndex ctx name currentIndex
       | null ctx = Nothing
       | name == fst (head ctx) = Just currentIndex
       | otherwise = testIndex (tail ctx) name (currentIndex + 1)
 
 
--- printTm :: Context -> Term -> String
--- printTm ctx t = case t of
---   TmVar x n | ctxLength ctx == n -> show (index2name ctx x)
---             | otherwise -> "[bad index]"
---   TmAbs t1 x ->
---     let (ctx', x') = pickFreshName ctx x in
---       "(lambda " ++ x' ++ ". " ++ printTm ctx' t1 ++ ")"
---   TmApp t1 t2 ->
---     "(" ++ printTm ctx t1 ++ " " ++ printTm ctx t2 ++ ")"
---   where
+-- Other. Somethign useful
+
+printTm :: Context -> Term -> String
+printTm ctx term = case term of
+  TmVar index maxLength | ctxLength ctx == maxLength ->
+                            show (indexToName ctx index) -- TODO: maybe
+                        | otherwise ->
+                            "[bad index]"
+  TmAbs t1 x ->
+    let (ctx', x') = pickFreshName ctx x in
+      "(lambda " ++ x' ++ ". " ++ printTm ctx' t1 ++ ")"
+  TmApp t1 t2 ->
+    "(" ++ printTm ctx t1 ++ " " ++ printTm ctx t2 ++ ")"
 
 
 termShift :: Int -> Term -> Term
