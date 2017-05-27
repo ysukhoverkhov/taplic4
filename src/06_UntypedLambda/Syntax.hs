@@ -1,6 +1,8 @@
-module Lambda where
-
--- TODO: specify terms to export.
+module Syntax (
+  Term(..),
+  NameBind,
+  Context
+) where
 
 import Data.List (find, elemIndex)
 import Data.Maybe (fromMaybe)
@@ -71,7 +73,7 @@ nameToIndex (Context ctx) name =
 
 
 -- Other. Somethign useful
-
+-- TODO: it looks like it's not in its place
 printTm :: Context -> Term -> String
 printTm ctx term = case term of
   TmVar index maxLength | ctxLength ctx == maxLength ->
