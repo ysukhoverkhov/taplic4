@@ -1,24 +1,26 @@
 module Syntax (
   Term(..),
   NameBind,
-  Context
+  Context,
+  termSubstTop
 ) where
+
+-- TODO: add errors here instead of Maybe
 
 import Data.List (find, elemIndex)
 import Data.Maybe (fromMaybe)
 
 -- Data types
+type Name = String
 
 data Term =
   TmVar Int Int |
-  TmAbs Term String |
+  TmAbs Name Term |
   TmApp Term Term
   deriving (Show)
 
 data NameBind = NameBind deriving Show
 type Binding = NameBind
-
-type Name = String
 
 type ContextElement = (Name, Binding)
 newtype Context = Context [ContextElement] deriving Show
@@ -80,12 +82,14 @@ printTm ctx term = case term of
                             show (indexToName ctx index) -- TODO: maybe
                         | otherwise ->
                             "[bad index]"
-  TmAbs t1 x ->
-    let (ctx', x') = pickFreshName ctx x in
+  TmAbs name t1 ->
+    let (ctx', x') = pickFreshName ctx name in
       "(lambda " ++ x' ++ ". " ++ printTm ctx' t1 ++ ")"
   TmApp t1 t2 ->
     "(" ++ printTm ctx t1 ++ " " ++ printTm ctx t2 ++ ")"
 
+
+-- Shifting
 
 termShift :: Int -> Term -> Term
 termShift d = walk 0
@@ -93,8 +97,13 @@ termShift d = walk 0
     walk c t = case t of
       TmVar x n | x >= c -> TmVar (x + d) (n + d)
                 | otherwise -> TmVar x (n + d)
-      TmAbs t1 x -> TmAbs (walk (c + 1) t1) x
+      TmAbs name t1 -> TmAbs name (walk (c + 1) t1)
       TmApp t1 t2 -> TmApp (walk c t1) (walk c t2)
+
+-- Substitution
+termSubstTop :: Term -> Term -> Term
+termSubstTop s t =
+  termShift (-1) (termSubst 0 (termShift 1 s) t)
 
 -- [j -> s]t
 termSubst :: Int -> Term -> Term -> Term
@@ -103,5 +112,5 @@ termSubst j s = walk 0
     walk c t = case t of
       TmVar x n | x == j + c -> termShift c s
                 | otherwise -> TmVar x n
-      TmAbs t1 x -> TmAbs (walk (c + 1) t1) x
+      TmAbs name t1 -> TmAbs name (walk (c + 1) t1)
       TmApp t1 t2 -> TmApp (walk c t1) (walk c t2)
