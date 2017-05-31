@@ -1,4 +1,6 @@
-module Evaluation where
+module Evaluation (
+  eval
+) where
 
 import Syntax
 
