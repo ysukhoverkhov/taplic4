@@ -1,6 +1,5 @@
 module Parser where
 
-
 import Data.Char
 
 import Text.Parsec.String (Parser)
@@ -23,6 +22,8 @@ data SimpleExpr = Num Integer
                  | Mul SimpleExpr SimpleExpr
                  | Parens SimpleExpr
                    deriving (Eq,Show)
+
+-- TODO: seporate parsing/lexing concerns completelly.
 
 -- various things
 whitespace :: Parser ()
