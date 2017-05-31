@@ -4,7 +4,7 @@ module Parser where
 import Data.Char
 
 import Text.Parsec.String (Parser)
-import Text.Parsec.Char (anyChar, satisfy, space, char, string, spaces, digit, oneOf)
+import Text.Parsec.Char (anyChar, satisfy, space, char, string, spaces, digit, oneOf, letter)
 import Text.Parsec.Combinator (many1, chainl1)
 import Text.Parsec (parse, try)
 import Control.Applicative ((<|>), many)
@@ -29,47 +29,34 @@ whitespace :: Parser ()
 whitespace = void $ many $ oneOf " \n\t"
 
 lexeme :: Parser a -> Parser a
-lexeme p = do
- x <- p
- whitespace
- return x
+lexeme p = p <* whitespace
 
 -- Token type
 num :: Parser SimpleExpr
-num = do
- n <- lexeme $ many1 digit
- return $ Num $ read n
+num = Num . read <$> lexeme (many1 digit)
 
 var :: Parser SimpleExpr
-var = do
-   fc <- firstChar
-   rest <- lexeme $ many nonFirstChar
-   return $ Var (fc:rest)
- where
-   firstChar = satisfy (\a -> isLetter a || a == '_')
-   nonFirstChar = satisfy (\a -> isDigit a || isLetter a || a == '_')
+var =
+  Var <$> iden
+  where
+   iden = lexeme $ (:) <$> firstChar <*> many nonFirstChar
+   firstChar = letter <|> char '_'
+   nonFirstChar = digit <|> firstChar
 
 parens :: Parser SimpleExpr
-parens = do
-   void $ lexeme $ char '('
-   e <- simpleExpr
-   void $ lexeme $ char ')'
-   return $ Parens e
+parens = Parens <$> (lexeme (char '(') *> simpleExpr <* lexeme (char ')'))
+
+operator :: Char -> (SimpleExpr -> SimpleExpr -> SimpleExpr) -> Parser (SimpleExpr -> SimpleExpr -> SimpleExpr)
+operator c op = lexeme (char c) *> return op
 
 addOperator :: Parser (SimpleExpr -> SimpleExpr -> SimpleExpr)
-addOperator = do
-   void $ lexeme $ char '+'
-   return Add
+addOperator = operator '+' Add
 
 subOperator :: Parser (SimpleExpr -> SimpleExpr -> SimpleExpr)
-subOperator = do
-  void $ lexeme $ char '-'
-  return Sub
+subOperator = operator '-' Sub
 
 mulOperator :: Parser (SimpleExpr -> SimpleExpr -> SimpleExpr)
-mulOperator = do
-  void $ lexeme $ char '*'
-  return Mul
+mulOperator = operator '*' Mul
 
 simpleExpr :: Parser SimpleExpr
 simpleExpr = term `chainl1` op
