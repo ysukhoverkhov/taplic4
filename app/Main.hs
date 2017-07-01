@@ -1,6 +1,6 @@
 module Main where
 
-import ArExp (Term(..), evalAll)
+import           ArExp (Term (..), evalAll)
 
 main :: IO ()
 main = do

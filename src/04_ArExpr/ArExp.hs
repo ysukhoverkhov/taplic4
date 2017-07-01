@@ -37,9 +37,9 @@ eval t = case t of
 
 isNumericVal :: Term -> Bool
 isNumericVal t = case t of
-  TmZero -> True
+  TmZero      -> True
   (TmSucc t1) -> isNumericVal t1
-  _ -> False
+  _           -> False
 
 isVal :: Term -> Bool
 isVal t = case t of
