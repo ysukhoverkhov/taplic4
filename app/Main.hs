@@ -1,6 +1,8 @@
 module Main where
 
 import ArExp (Term(..), evalAll)
+import Syntax
+import SyntaxNaive
 
 main :: IO ()
 main = do
