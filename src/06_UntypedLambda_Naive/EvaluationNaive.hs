@@ -2,7 +2,7 @@ module EvaluationNaive (
   eval
 ) where
 
-import SyntaxNaive(Term(..))
+import SyntaxNaive(Term(..), Name)
 
 isVal :: Term -> Bool
 isVal term = case term of
@@ -16,8 +16,8 @@ eval term
 
 evalSmallStep :: Term -> Maybe Term
 evalSmallStep term = case term of
-  TmApp (TmAbs _ t12) v2 | isVal v2 ->
-    Just $ termSubst v2 t12
+  TmApp (TmAbs name t12) v2 | isVal v2 ->
+    Just $ termSubst name v2 t12
 
   TmApp v1 t2 | isVal v1 ->
     let t2' = evalSmallStep t2 in
@@ -34,12 +34,11 @@ evalSmallStep term = case term of
 printTm :: Term -> String
 printTm term = case term of
   TmVar name -> name
-  TmAbs name term -> "~" ++ name ++ " -> " ++ printTm term
+  TmAbs name term -> "(~" ++ name ++ " -> " ++ printTm term ++ ")"
   TmApp t1 t2 -> printTm t1 ++ " " ++ printTm  t2
 
 -- [j -> s]t
--- TODO: first argument here should be Term of type Var
-termSubst :: String -> Term -> Term -> Term
+termSubst :: Name -> Term -> Term -> Term
 termSubst j s t =
   case t of
     TmVar name | name == j -> s
