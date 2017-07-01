@@ -2,17 +2,19 @@ module EvaluationNaive (
   eval
 ) where
 
-import SyntaxNaive(Term(..), Name)
+import           SyntaxNaive (Name, Term (..))
 
-isVal :: Term -> Bool
-isVal term = case term of
-  (TmAbs _ _) -> True
-  _ -> False
+-- TODO: replace Maybe with Either
 
 eval :: Term -> Maybe Term
 eval term
   | isVal term = Just term
   | otherwise = evalSmallStep term >>= eval
+
+isVal :: Term -> Bool
+isVal term = case term of
+  (TmAbs _ _) -> True
+  _           -> False
 
 evalSmallStep :: Term -> Maybe Term
 evalSmallStep term = case term of
@@ -31,11 +33,12 @@ evalSmallStep term = case term of
 
 -- Other. Somethign useful
 -- TODO: it looks like it's not in its place
+-- TODO: replace with Show instance
 printTm :: Term -> String
 printTm term = case term of
-  TmVar name -> name
+  TmVar name      -> name
   TmAbs name term -> "(~" ++ name ++ " -> " ++ printTm term ++ ")"
-  TmApp t1 t2 -> printTm t1 ++ " " ++ printTm  t2
+  TmApp t1 t2     -> printTm t1 ++ " " ++ printTm  t2
 
 -- [j -> s]t
 termSubst :: Name -> Term -> Term -> Term
