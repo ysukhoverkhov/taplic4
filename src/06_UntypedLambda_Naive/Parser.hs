@@ -1,6 +1,8 @@
-module ParserNaive where
+module Parser (
 
-import           SyntaxNaive            (Name, Term (..))
+) where
+
+import           Syntax            (Name, Term (..))
 
 import           Control.Applicative    (many, (<|>))
 import           Control.Monad          (void)
@@ -8,6 +10,10 @@ import           Text.Parsec            (parse, try)
 import           Text.Parsec.Char       (char, digit, letter, oneOf, string)
 import           Text.Parsec.Combinator (between, chainl1, choice, many1)
 import           Text.Parsec.String     (Parser)
+
+
+parse :: String -> Either String Term
+parse = Text.Parsec.parse term ""
 
 -- # TODO: split syntax and semantics
 

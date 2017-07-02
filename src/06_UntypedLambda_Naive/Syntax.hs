@@ -1,4 +1,4 @@
-module SyntaxNaive (
+module Syntax (
   Term(..), Name
 ) where
 

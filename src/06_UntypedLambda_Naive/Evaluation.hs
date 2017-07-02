@@ -1,8 +1,8 @@
-module EvaluationNaive (
+module Evaluation (
   eval
 ) where
 
-import           SyntaxNaive (Name, Term (..))
+import           Syntax (Name, Term (..))
 
 -- TODO: replace Maybe with Either
 

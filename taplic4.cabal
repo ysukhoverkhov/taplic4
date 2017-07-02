@@ -5,38 +5,38 @@ version:             0.1.0.0
 homepage:            https://github.com/githubuser/taplic4#readme
 license:             BSD3
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2017 Author name here
+author:              Yury Sukhoverkhov
+maintainer:          y@vitasw.com
+copyright:           2017 Yury Sukhoverkhov
 category:            Web
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-library
-  hs-source-dirs:      src/04_ArExpr,
-                       src/06_UntypedLambda,
-                       src/06_UntypedLambda_Naive
-  exposed-modules:     ArExp
-  build-depends:       base >= 4.7 && < 5, parsec
-  default-language:    Haskell2010
-
-executable taplic4-exe
-  hs-source-dirs:      app
+executable t4
+  hs-source-dirs:      app/04, src/04_ArExpr
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , taplic4
+  other-modules:       ArExp
   default-language:    Haskell2010
 
-test-suite taplic4-test
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , taplic4
+executable t6n
+  hs-source-dirs:      app/06_naive, src/06_UntypedLambda_Naive
+  main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base, parsec
+  other-modules:       Evaluation, Parser, Syntax
   default-language:    Haskell2010
+
+-- test-suite taplic4-test
+--   type:                exitcode-stdio-1.0
+--   hs-source-dirs:      test
+--   main-is:             Spec.hs
+--   build-depends:       base
+--                      , taplic4
+--   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+--   default-language:    Haskell2010
 
 source-repository head
   type:     git
