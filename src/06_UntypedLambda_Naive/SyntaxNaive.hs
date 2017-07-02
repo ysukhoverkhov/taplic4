@@ -9,4 +9,4 @@ data Term =
   TmVar Name |
   TmAbs Name Term |
   TmApp Term Term
-  deriving (Show)
+  deriving (Show, Eq)
