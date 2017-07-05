@@ -1,19 +1,24 @@
 module Parser (
-
+  Parser.parse
 ) where
 
-import           Syntax            (Name, Term (..))
+import           Syntax                 (Name, Term (..))
 
 import           Control.Applicative    (many, (<|>))
 import           Control.Monad          (void)
+import           Data.Bifunctor         (first)
+
 import           Text.Parsec            (parse, try)
 import           Text.Parsec.Char       (char, digit, letter, oneOf, string)
 import           Text.Parsec.Combinator (between, chainl1, choice, many1)
+import           Text.Parsec.Error      (ParseError (..))
 import           Text.Parsec.String     (Parser)
 
 
 parse :: String -> Either String Term
-parse = Text.Parsec.parse term ""
+parse string = first transformParserError $ Text.Parsec.parse term "" string
+  where
+    transformParserError = show
 
 -- # TODO: split syntax and semantics
 

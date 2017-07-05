@@ -1,7 +1,8 @@
 module Main where
 
 import           Evaluation (eval)
-import           Parser (parse)
+import           Parser     (parse)
 
 main :: IO ()
-main = print 1
+main =
+  print $ parse "(~a -> a) (~b -> b)"
