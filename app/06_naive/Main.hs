@@ -5,4 +5,4 @@ import           Parser     (parse)
 
 main :: IO ()
 main =
-  print $ parse "(~a -> a) (~b -> b)"
+  print $ parse "(~a -> ~b -> a b) (~c -> c) (~d -> d)" >>= eval

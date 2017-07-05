@@ -2,6 +2,7 @@ module Parser (
   Parser.parse
 ) where
 
+import qualified Lexics                 as L
 import           Syntax                 (Name, Term (..))
 
 import           Control.Applicative    (many, (<|>))
@@ -20,8 +21,6 @@ parse string = first transformParserError $ Text.Parsec.parse term "" string
   where
     transformParserError = show
 
--- # TODO: split syntax and semantics
-
 -- various things
 whitespace :: Parser ()
 whitespace = void $ many $ oneOf " \n\t"
@@ -39,17 +38,17 @@ identifier = lexeme $ (:) <$> firstChar <*> many nonFirstChar
    firstChar = letter <|> char '_'
    nonFirstChar = digit <|> firstChar
 
-parenOpen :: Parser Char
-parenOpen = lexeme $ char '('
+parenOpen :: Parser String
+parenOpen = lexeme $ string L.parenOpen
 
-parenClose :: Parser Char
-parenClose = lexeme $ char ')'
+parenClose :: Parser String
+parenClose = lexeme $ string L.parenClose
 
-lambda :: Parser Char
-lambda = lexeme $ char '~'
+lambda :: Parser String
+lambda = lexeme $ string L.lambda
 
 arrow :: Parser String
-arrow = lexeme $ string "->"
+arrow = lexeme $ string L.arrow
 
 -- Parser
 term :: Parser Term
@@ -57,18 +56,18 @@ term = choice [abstract, app, var, parens]
 
 -- 0
 abstract :: Parser Term
-abstract = TmAbs <$> (lambda *> identifier <* arrow) <*> term
+abstract = Abstraction <$> (lambda *> identifier <* arrow) <*> term
 
 -- 1
 app :: Parser Term
 app = operands `chainl1` operation
   where
     operands = choice [abstract, var, parens]
-    operation = return TmApp
+    operation = return Application
 
 -- 2
 var :: Parser Term
-var = TmVar <$> identifier
+var = Variable <$> identifier
 
 parens :: Parser Term
 parens = between parenOpen parenClose term

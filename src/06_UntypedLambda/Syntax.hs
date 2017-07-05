@@ -14,9 +14,9 @@ import Data.Maybe (fromMaybe)
 type Name = String
 
 data Term =
-  TmVar Int Int |
-  TmAbs Name Term |
-  TmApp Term Term
+  Variable Int Int |
+  Abstraction Name Term |
+  Application Term Term
   deriving (Show)
 
 data NameBind = NameBind deriving Show
@@ -78,14 +78,14 @@ nameToIndex (Context ctx) name =
 -- TODO: it looks like it's not in its place
 printTm :: Context -> Term -> String
 printTm ctx term = case term of
-  TmVar index maxLength | ctxLength ctx == maxLength ->
+  Variable index maxLength | ctxLength ctx == maxLength ->
                             show (indexToName ctx index) -- TODO: maybe
                         | otherwise ->
                             "[bad index]"
-  TmAbs name t1 ->
+  Abstraction name t1 ->
     let (ctx', x') = pickFreshName ctx name in
       "(lambda " ++ x' ++ ". " ++ printTm ctx' t1 ++ ")"
-  TmApp t1 t2 ->
+  Application t1 t2 ->
     "(" ++ printTm ctx t1 ++ " " ++ printTm ctx t2 ++ ")"
 
 
@@ -95,10 +95,10 @@ termShift :: Int -> Term -> Term
 termShift d = walk 0
   where
     walk c t = case t of
-      TmVar x n | x >= c -> TmVar (x + d) (n + d)
-                | otherwise -> TmVar x (n + d)
-      TmAbs name t1 -> TmAbs name (walk (c + 1) t1)
-      TmApp t1 t2 -> TmApp (walk c t1) (walk c t2)
+      Variable x n | x >= c -> Variable (x + d) (n + d)
+                | otherwise -> Variable x (n + d)
+      Abstraction name t1 -> Abstraction name (walk (c + 1) t1)
+      Application t1 t2 -> Application (walk c t1) (walk c t2)
 
 -- Substitution
 termSubstTop :: Term -> Term -> Term
@@ -110,7 +110,7 @@ termSubst :: Int -> Term -> Term -> Term
 termSubst j s = walk 0
   where
     walk c t = case t of
-      TmVar x n | x == j + c -> termShift c s
-                | otherwise -> TmVar x n
-      TmAbs name t1 -> TmAbs name (walk (c + 1) t1)
-      TmApp t1 t2 -> TmApp (walk c t1) (walk c t2)
+      Variable x n | x == j + c -> termShift c s
+                | otherwise -> Variable x n
+      Abstraction name t1 -> Abstraction name (walk (c + 1) t1)
+      Application t1 t2 -> Application (walk c t1) (walk c t2)
