@@ -3,7 +3,7 @@ module Parser (
 ) where
 
 import qualified Lexics                 as L
-import           Syntax                 (Name, Term (..))
+import           Syntax                 (Name, Term (..), justName)
 
 import           Control.Applicative    (many, (<|>))
 import           Control.Monad          (void)
@@ -45,7 +45,7 @@ parenClose :: Parser String
 parenClose = lexeme $ string L.parenClose
 
 lambda :: Parser String
-lambda = lexeme $ string L.lambda
+lambda =  lexeme $ string L.lambda
 
 arrow :: Parser String
 arrow = lexeme $ string L.arrow
@@ -56,7 +56,7 @@ term = choice [abstract, app, var, parens]
 
 -- 0
 abstract :: Parser Term
-abstract = Abstraction <$> (lambda *> identifier <* arrow) <*> term
+abstract = Abstraction <$> (lambda *> (justName <$> identifier) <* arrow) <*> term
 
 -- 1
 app :: Parser Term
@@ -67,7 +67,7 @@ app = operands `chainl1` operation
 
 -- 2
 var :: Parser Term
-var = Variable <$> identifier
+var = Variable . justName <$> identifier
 
 parens :: Parser Term
 parens = between parenOpen parenClose term
