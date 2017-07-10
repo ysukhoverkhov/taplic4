@@ -26,7 +26,7 @@ executable t6n
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base, parsec
-  other-modules:       Evaluation, Parser, Syntax, Lexics
+  other-modules:       Evaluation, Parser, Syntax, Lexics, Contextifier
   default-language:    Haskell2010
 
 -- test-suite taplic4-test
