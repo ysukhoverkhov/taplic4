@@ -1,5 +1,5 @@
 module Syntax (
-  Term(..), justName, Name(..)
+  Term(..), justName, Name(..), Context
 ) where
 
 import qualified Lexics as L

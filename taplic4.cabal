@@ -25,7 +25,7 @@ executable t6n
   hs-source-dirs:      app/06_naive, src/06_UntypedLambda_Naive
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base, parsec
+  build-depends:       base, parsec, containers
   other-modules:       Evaluation, Parser, Syntax, Lexics, Contextifier
   default-language:    Haskell2010
 
